@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@10.238.160.114:1521:wzec
+    username: gsnsinopecsupp
+    password: gsnsinopecsupp
+
+mybatis:
+  mapper-locations: classpath*:com/zc/mapper/*Mapper.xml
+  type-aliases-package: com.zc.model
+
+logging:
+  level:
+    com:
+      zc:
+        mapper: debug

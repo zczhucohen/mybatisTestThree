@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zc.mapper.TestOneMapper" >
+  <resultMap id="BaseResultMap" type="com.zc.model.user.User" >
+    <id column="C_CODE" property="code" jdbcType="VARCHAR" />
+    <result column="C_NAME" property="name" jdbcType="VARCHAR" />
+    <result column="C_PASSWORD" property="password" jdbcType="VARCHAR" />
+    <result column="C_ENTERPRISE_ID" property="enterpriseId" jdbcType="VARCHAR" />
+    <result column="C_PHONE" property="phone" jdbcType="VARCHAR" />
+    <result column="C_MOBILEPHONE" property="mobilephone" jdbcType="VARCHAR" />
+    <result column="C_FAX" property="fax" jdbcType="VARCHAR" />
+    <result column="C_EMAIL" property="email" jdbcType="VARCHAR" />
+    <result column="C_ADDRESS" property="address" jdbcType="VARCHAR" />
+    <result column="C_REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="C_USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="C_STOP_SIGN" property="stopSign" jdbcType="DECIMAL" />
+    <result column="C_CREATE_USER" property="createUser" jdbcType="VARCHAR" />
+    <result column="C_CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="C_SUPPLIER_ID" property="supplierId" jdbcType="VARCHAR" />
+    <result column="C_DEPARTMENT_ID" property="departmentId" jdbcType="VARCHAR" />
+
+  </resultMap>
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    C_CODE, C_NAME, C_PASSWORD, C_ENTERPRISE_ID, C_PHONE, C_MOBILEPHONE, C_FAX, C_EMAIL, 
+    C_ADDRESS, C_REMARK, C_USER_ID, C_STOP_SIGN, C_CREATE_USER, C_CREATE_TIME, C_SUPPLIER_ID,C_DEPARTMENT_ID
+  </sql>
+
+  <sql id="Base_Colum_More_List">
+      T.C_CODE, T.C_NAME, T.C_PASSWORD,
+      T.C_ENTERPRISE_ID, T.C_PHONE, T.C_MOBILEPHONE,
+      T.C_FAX, T.C_EMAIL, T.C_ADDRESS,
+      T.C_REMARK, T.C_USER_ID, T.C_STOP_SIGN,
+      T.C_CREATE_USER, T.C_CREATE_TIME, T.C_SUPPLIER_ID,T.C_DEPARTMENT_ID,
+      R.C_ID, R.C_NAME NAME_ROLE,R.C_NAME_EN,R.C_REMARK REMARK_ROLE,R.C_JBPM_GROUP_ID JBPM_GROUP_ID_ROLE,
+      R.C_STOP_SIGN STOP_SIGN_ROLE,C_SCOPE,R.C_CREATE_USER CREATE_USER_ROLE,
+      R.C_CREATE_TIME CREATE_TIME_ROLE,R.C_ROLE_TYPE
+
+  </sql>
+
+
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.zc.model.user.UserExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from GSNSINOPECSUPP.T_USER
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  
+  <select id="selectByLogin" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    FROM T_USER T
+    WHERE T.C_CODE = #{loginName,jdbcType=VARCHAR}
+  </select>
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Colum_More_List" />
+    FROM T_USER T
+    LEFT JOIN T_USER_ROLE A
+    ON T.C_USER_ID = A.C_USER_CODE
+    LEFT JOIN T_ROLE R
+    ON A.C_ROLE_ID = R.C_ID
+    <if test="roleArray!=null">
+      AND R.C_STOP_SIGN  IN
+      <foreach collection="roleArray" item="roleStop" open="(" close=")" index="index" separator=",">
+        #{roleStop,jdbcType=DECIMAL}
+      </foreach>
+    </if>
+    WHERE T.C_USER_ID = #{code,jdbcType=DECIMAL}
+    <if test="userArray!=null and userArray.length!=0">
+      AND T.C_STOP_SIGN  IN
+      <foreach collection="userArray" item="sn" open="(" close=")" index="index" separator=",">
+        #{sn,jdbcType=DECIMAL}
+      </foreach>
+    </if>
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from GSNSINOPECSUPP.T_USER
+    where T.C_USER_ID = #{code,jdbcType=VARCHAR}
+  </delete>
+
+
+  <delete id="deleteByExample" parameterType="com.zc.model.user.UserExample" >
+    delete from GSNSINOPECSUPP.T_USER
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+
+
+  <insert id="insertUser" parameterType="com.zc.model.user.User" >
+    <selectKey resultType="java.lang.String" order="BEFORE" keyProperty="userId">
+      SELECT f_get_sequence('T_USER') FROM DUAL
+    </selectKey>
+    insert into GSNSINOPECSUPP.T_USER (C_USER_ID,C_CODE, C_NAME, C_PASSWORD,
+      C_ENTERPRISE_ID, C_PHONE, C_MOBILEPHONE, 
+      C_FAX, C_EMAIL, C_ADDRESS, 
+      C_REMARK, C_STOP_SIGN,
+      C_CREATE_USER, C_CREATE_TIME, C_SUPPLIER_ID,C_DEPARTMENT_ID
+      )
+    values (#{userId,jdbcType=VARCHAR},#{code,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+      #{enterpriseId,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{mobilephone,jdbcType=VARCHAR}, 
+      #{fax,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR},#{stopSign,jdbcType=VARCHAR},
+      #{createUser,jdbcType=VARCHAR}, sysdate, #{supplierId,jdbcType=VARCHAR},#{departmentId,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <insert id="insertSelective" parameterType="com.zc.model.user.User" >
+    insert into GSNSINOPECSUPP.T_USER
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="code != null" >
+        C_CODE,
+      </if>
+      <if test="name != null" >
+        C_NAME,
+      </if>
+      <if test="password != null" >
+        C_PASSWORD,
+      </if>
+      <if test="enterpriseId != null" >
+        C_ENTERPRISE_ID,
+      </if>
+      <if test="phone != null" >
+        C_PHONE,
+      </if>
+      <if test="mobilephone != null" >
+        C_MOBILEPHONE,
+      </if>
+      <if test="fax != null" >
+        C_FAX,
+      </if>
+      <if test="email != null" >
+        C_EMAIL,
+      </if>
+      <if test="address != null" >
+        C_ADDRESS,
+      </if>
+      <if test="remark != null" >
+        C_REMARK,
+      </if>
+      <if test="userId != null" >
+        C_USER_ID,
+      </if>
+      <if test="stopSign != null" >
+        C_STOP_SIGN,
+      </if>
+      <if test="createUser != null" >
+        C_CREATE_USER,
+      </if>
+      <if test="createTime != null" >
+        C_CREATE_TIME,
+      </if>
+      <if test="supplierId != null" >
+        C_SUPPLIER_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="enterpriseId != null" >
+        #{enterpriseId,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="mobilephone != null" >
+        #{mobilephone,jdbcType=VARCHAR},
+      </if>
+      <if test="fax != null" >
+        #{fax,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="stopSign != null" >
+        #{stopSign,jdbcType=DECIMAL},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="supplierId != null" >
+        #{supplierId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <select id="countByExample" parameterType="com.zc.model.user.UserExample" resultType="java.lang.Integer" >
+    select count(*) from GSNSINOPECSUPP.T_USER
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+
+
+  <update id="updateByExampleSelective" parameterType="map" >
+    update GSNSINOPECSUPP.T_USER
+    <set >
+      <if test="record.code != null" >
+        C_CODE = #{record.code,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null" >
+        C_NAME = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.password != null" >
+        C_PASSWORD = #{record.password,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enterpriseId != null" >
+        C_ENTERPRISE_ID = #{record.enterpriseId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phone != null" >
+        C_PHONE = #{record.phone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mobilephone != null" >
+        C_MOBILEPHONE = #{record.mobilephone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fax != null" >
+        C_FAX = #{record.fax,jdbcType=VARCHAR},
+      </if>
+      <if test="record.email != null" >
+        C_EMAIL = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.address != null" >
+        C_ADDRESS = #{record.address,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null" >
+        C_REMARK = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null" >
+        C_USER_ID = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.stopSign != null" >
+        C_STOP_SIGN = #{record.stopSign,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createUser != null" >
+        C_CREATE_USER = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        C_CREATE_TIME = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.supplierId != null" >
+        C_SUPPLIER_ID = #{record.supplierId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+
+  <update id="updateByExample" parameterType="map" >
+    update GSNSINOPECSUPP.T_USER
+    set C_CODE = #{record.code,jdbcType=VARCHAR},
+      C_NAME = #{record.name,jdbcType=VARCHAR},
+      C_PASSWORD = #{record.password,jdbcType=VARCHAR},
+      C_ENTERPRISE_ID = #{record.enterpriseId,jdbcType=VARCHAR},
+      C_PHONE = #{record.phone,jdbcType=VARCHAR},
+      C_MOBILEPHONE = #{record.mobilephone,jdbcType=VARCHAR},
+      C_FAX = #{record.fax,jdbcType=VARCHAR},
+      C_EMAIL = #{record.email,jdbcType=VARCHAR},
+      C_ADDRESS = #{record.address,jdbcType=VARCHAR},
+      C_REMARK = #{record.remark,jdbcType=VARCHAR},
+      C_USER_ID = #{record.userId,jdbcType=VARCHAR},
+      C_STOP_SIGN = #{record.stopSign,jdbcType=DECIMAL},
+      C_CREATE_USER = #{record.createUser,jdbcType=VARCHAR},
+      C_CREATE_TIME = #{record.createTime,jdbcType=TIMESTAMP},
+      C_SUPPLIER_ID = #{record.supplierId,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+
+  <update id="updateDynamicByUser" parameterType="com.zc.model.user.User" >
+    update GSNSINOPECSUPP.T_USER
+    <set>
+      <if test="name != null and name !=''" >
+        C_NAME = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null and code !=''" >
+        C_CODE = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null and password !=''" >
+        C_PASSWORD = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="enterpriseId != null and enterpriseId !=''" >
+        C_ENTERPRISE_ID = #{enterpriseId,jdbcType=VARCHAR},
+      </if>
+      <!--<if test="phone != null and phone !=''" >
+        C_PHONE = #{phone,jdbcType=VARCHAR},
+      </if>-->
+      C_PHONE = #{phone,jdbcType=VARCHAR},
+      <if test="mobilephone != null and mobilephone !=''" >
+        C_MOBILEPHONE = #{mobilephone,jdbcType=VARCHAR},
+      </if>
+      <if test="fax != null and fax !=''" >
+        C_FAX = #{fax,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null and email !=''" >
+        C_EMAIL = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null and address !=''" >
+        C_ADDRESS = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null and remark !=''" >
+        C_REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null and userId !=''" >
+        C_USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="stopSign != null" >
+        C_STOP_SIGN = #{stopSign,jdbcType=DECIMAL},
+      </if>
+      <if test="createUser != null and createUser !=''" >
+        C_CREATE_USER = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        C_CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="supplierId != null and supplierId !=''" >
+        C_SUPPLIER_ID = #{supplierId,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentId != null and departmentId !=''" >
+        C_DEPARTMENT_ID = #{departmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="enterpriseId == null and departmentId != null" >
+        C_ENTERPRISE_ID = #{enterpriseId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where C_USER_ID = #{userId,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.zc.model.user.User" >
+    update GSNSINOPECSUPP.T_USER
+    set C_NAME = #{name,jdbcType=VARCHAR},
+      C_PASSWORD = #{password,jdbcType=VARCHAR},
+      C_ENTERPRISE_ID = #{enterpriseId,jdbcType=VARCHAR},
+      C_PHONE = #{phone,jdbcType=VARCHAR},
+      C_MOBILEPHONE = #{mobilephone,jdbcType=VARCHAR},
+      C_FAX = #{fax,jdbcType=VARCHAR},
+      C_EMAIL = #{email,jdbcType=VARCHAR},
+      C_ADDRESS = #{address,jdbcType=VARCHAR},
+      C_REMARK = #{remark,jdbcType=VARCHAR},
+      C_USER_ID = #{userId,jdbcType=VARCHAR},
+      C_STOP_SIGN = #{stopSign,jdbcType=DECIMAL},
+      C_CREATE_USER = #{createUser,jdbcType=VARCHAR},
+      C_CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      C_SUPPLIER_ID = #{supplierId,jdbcType=VARCHAR}
+    where T.C_USER_ID = #{code,jdbcType=VARCHAR}
+  </update>
+
+</mapper>
