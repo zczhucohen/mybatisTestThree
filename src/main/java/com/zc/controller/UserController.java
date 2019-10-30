@@ -30,6 +30,7 @@ public class UserController {
 
     @PostMapping ("user!userData/{code}")
     public List<User>  userData(HttpServletRequest request,@PathVariable("code")String code){
+        System.out.println("---");
         return userService.getUser(code);
     }
 }
